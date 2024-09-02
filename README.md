@@ -67,3 +67,6 @@ Define the table model in models.py.
 Create corresponding GUI components in gui.py.
 
 Connect the GUI components to the database session.
+
+```
+To support my development, AI like ChatGPT aided in my development
