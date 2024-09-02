@@ -7,6 +7,7 @@ This application provides a graphical user interface (GUI) for managing a Postgr
 - Authentication with PostgreSQL database.
 - View all tables and their records.
 - Add and delete records in the `countries` table.
+- Also you can edit the db_session code, and use your ip if you won't use localhost to connect to the dabase
 - Extendable to other tables for CRUD operations.
 
 ## Requirements
@@ -19,7 +20,8 @@ This application provides a graphical user interface (GUI) for managing a Postgr
 
 ## Installation
 1. Clone the repository:
-   
+   ```bash
+   git clone https://github.com/pacheco20222/ORM_postgreSQL.git
 
 2. Create and Activate a virtual environment:
 - On Linux/Mac:
@@ -38,7 +40,7 @@ This application provides a graphical user interface (GUI) for managing a Postgr
 
 
 ## Usage
-1. Postgress Should be installed, and this code uses the HR_POSTGRESTSQL.sql file to create the database, not only that but it is meant for localhost.
+1. Postgress Should be installed, and this code is able to edit a database that has been created from the file `HR_POSTGRESTSQL.sql`
 
 2. Run the Application
     ```bash
