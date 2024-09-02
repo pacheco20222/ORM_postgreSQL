@@ -13,7 +13,7 @@ class AuthenticationWindow(QWidget):
         self.setWindowTitle("Authentication")
         self.resize(300, 200)
 
-        # Widgets
+        # Widgets for database name, username, and password input
         self.label_db_name = QLabel("Database Name:")
         self.input_db_name = QLineEdit()
 
@@ -22,12 +22,13 @@ class AuthenticationWindow(QWidget):
 
         self.label_password = QLabel("Password:")
         self.input_password = QLineEdit()
-        self.input_password.setEchoMode(QLineEdit.Password)
+        self.input_password.setEchoMode(QLineEdit.Password)  # Hide password input
 
+        # Submit button to trigger authentication
         self.btn_submit = QPushButton("Submit")
         self.btn_submit.clicked.connect(self.authenticate)
 
-        # Layout
+        # Layout setup
         layout = QVBoxLayout()
         layout.addWidget(self.label_db_name)
         layout.addWidget(self.input_db_name)
@@ -39,20 +40,22 @@ class AuthenticationWindow(QWidget):
         self.setLayout(layout)
 
     def authenticate(self):
+        # Get input values
         db_name = self.input_db_name.text().strip()
         username = self.input_username.text().strip()
         password = self.input_password.text().strip()
 
         try:
-            # Attempt to create a session
+            # Attempt to create a session with the provided credentials
             self.session = Sesion_BD(db_name, username, password).session
 
-            # If successful, close this window and open the main window
+            # If successful, open the main window and close the authentication window
             self.main_window = MainWindow(self.session)
             self.main_window.show()
             self.close()
 
         except Exception as e:
+            # Show an error message if authentication fails
             QMessageBox.critical(self, "Authentication Error", f"Failed to connect to the database. Please check your credentials and try again. Error: {str(e)}")
 
 class MainWindow(QWidget):
@@ -65,11 +68,11 @@ class MainWindow(QWidget):
         self.resize(600, 400)
         self.setWindowIcon(QIcon("postgress_logo.png"))
         
-        # Title
+        # Title label
         self.title = QLabel("Database Management", self)
         self.title.setAlignment(Qt.AlignCenter)
         
-        # Buttons
+        # Buttons for various database operations
         self.button_add_country = QPushButton("Add Country", self)
         self.button_delete_country = QPushButton("Delete Country", self)
         self.button_view_all_tables = QPushButton("View All Tables", self)
@@ -78,7 +81,7 @@ class MainWindow(QWidget):
         self.initGUI()
         
     def initGUI(self):
-        # Layout
+        # Layout setup
         self.layout = QVBoxLayout()
         self.layout.addWidget(self.title)
         self.layout.addWidget(self.button_add_country)
@@ -87,17 +90,19 @@ class MainWindow(QWidget):
         self.layout.addWidget(self.button_view_one_table)
         self.setLayout(self.layout)
         
-        # Connections
+        # Connect buttons to their respective functions
         self.button_add_country.clicked.connect(self.show_add_country)
         self.button_delete_country.clicked.connect(self.show_delete_country)
         self.button_view_all_tables.clicked.connect(self.show_all_tables)
         self.button_view_one_table.clicked.connect(self.show_one_table)
         
     def show_add_country(self):
+        # Show the window to add a country
         self.add_window = AddCountryWindow(self.session)
         self.add_window.show()
         
     def show_delete_country(self):
+        # Show the window to delete a country
         self.delete_window = DeleteCountryWindow(self.session)
         self.delete_window.show()
     
@@ -210,7 +215,7 @@ class AddCountryWindow(QWidget):
         self.setWindowTitle("Add Country")
         self.resize(300, 200)
         
-        # Widgets
+        # Widgets for country ID, name, and region ID input
         self.label_id_country = QLabel("Country ID:")
         self.input_id_country = QLineEdit()
         
@@ -224,7 +229,7 @@ class AddCountryWindow(QWidget):
         self.submit_button = QPushButton("Add")
         self.submit_button.clicked.connect(self.add_country)
         
-        # Layout
+        # Layout setup
         layout = QVBoxLayout()
         layout.addWidget(self.label_id_country)
         layout.addWidget(self.input_id_country)
@@ -238,6 +243,7 @@ class AddCountryWindow(QWidget):
         
     def add_country(self):
         try:
+            # Get input values
             country_id = self.input_id_country.text().strip().upper()
             country_name = self.input_country_name.text().strip().title()
             region_id = int(self.dropdown_id_region.currentText().split(":")[0])
@@ -245,10 +251,12 @@ class AddCountryWindow(QWidget):
             if not country_id or not country_name:
                 raise ValueError("Country ID and Country Name are required")
             
+            # Create a new Country object and add it to the session
             country = Country(country_id=country_id, country_name=country_name, region_id=region_id)
             self.session.add(country)
             self.session.commit()
             
+            # Show success message and close the window
             QMessageBox.information(self, "Success", f"Country with ID {country_id} added successfully")
             self.close()
         
@@ -259,7 +267,6 @@ class AddCountryWindow(QWidget):
             else:
                 QMessageBox.critical(self, "Error", f"Error adding country: {str(e)}")
             self.session.rollback()
-            QMessageBox.critical(self, "Error", "Error adding country. Country ID already exists.")
         except ValueError as ve:
             QMessageBox.warning(self, "Warning", str(ve))
         except Exception as e:
@@ -272,14 +279,14 @@ class DeleteCountryWindow(QWidget):
         self.setWindowTitle("Delete Country")
         self.resize(300, 200)
         
-        # Widgets
+        # Widgets for country ID input
         self.label_id_country = QLabel("Country ID:")
         self.input_id_country = QLineEdit()
         
         self.delete_button = QPushButton("Delete")
         self.delete_button.clicked.connect(self.delete_country)
         
-        # Layout
+        # Layout setup
         layout = QVBoxLayout()
         layout.addWidget(self.label_id_country)
         layout.addWidget(self.input_id_country)
@@ -289,19 +296,23 @@ class DeleteCountryWindow(QWidget):
         
     def delete_country(self):
         try:
+            # Get the country ID from input
             country_id = self.input_id_country.text().strip().upper()
             
             if not country_id:
                 raise ValueError("Country ID is required")
             
+            # Query the country by ID
             country = self.session.query(Country).filter_by(country_id=country_id).first()
             
             if not country:
                 raise ValueError("No country found with that ID")
             
+            # Delete the country and commit the transaction
             self.session.delete(country)
             self.session.commit()
             
+            # Show success message and close the window
             QMessageBox.information(self, "Success", f"Country with ID {country_id} deleted successfully")
             self.close()
         
