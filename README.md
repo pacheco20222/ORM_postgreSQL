@@ -37,6 +37,9 @@ This application provides a graphical user interface (GUI) for managing a Postgr
 3. Install the required packages (could be pip3 or pip)
     ```bash
     pip install -r requirements.txt
+- Or you could use on mac if brew manages your pip
+    ```bash
+    pip install --break-system-packages -r requirements.txt
 
 
 ## Usage
